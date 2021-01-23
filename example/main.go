@@ -18,7 +18,7 @@ func main() {
 	if testMode {
 		bo := badorigin.NewServers(":8000", ":8001", ":8002")
 		bo.SetDebug()
-		bo.LaunchServers()
+		go bo.LaunchServers()
 	}
 
 	//... spin up your real work
