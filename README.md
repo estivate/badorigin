@@ -7,7 +7,8 @@ servers that perform in different ways for development and testing purposes.
 
 ## Status
 
-Right now most things are hard-coded.
+Spin up any number of servers on different ports, they'll all operate with
+a random delay.
 
 ## Install
 
@@ -18,6 +19,33 @@ Right now most things are hard-coded.
 
 ```go
 package main
+
+import (
+	"flag"
+	"fmt"
+
+	"github.com/estivate/badorigin"
+)
+
+func main() {
+	// are we testing? 
+	var testMode bool
+	flag.BoolVar(&testMode, "testMode", false, "run in test mode (default false)")
+	flag.Parse()
+
+	// if testing, launch the servers
+	if testMode {
+		bo := badorigin.NewServers(":8000", ":8001", ":8002")
+		bo.SetDebug()
+		bo.LaunchServers()
+	}
+
+	//... spin up your real work
+	fmt.Println("launching a reverse proxy in front of servers here")
+
+	// block forever
+	select {}
+}
 
 ```
 
