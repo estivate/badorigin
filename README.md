@@ -36,13 +36,12 @@ func main() {
 	// if testing, launch the servers
 	if testMode {
 		bo := badorigin.NewServers(":8000", ":8001", ":8002")
-		bo.SetDebug()
 		bo.LaunchServers()
 	}
 
-	//... spin up your real work
+	// spin up your real work where you are running some kind of
+    // server that blocks forever.
 	fmt.Println("launching a reverse proxy in front of servers here")
-
 	// block forever
 	select {}
 }

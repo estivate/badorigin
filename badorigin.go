@@ -1,5 +1,14 @@
-// Package origin simulates upstream content servers
-// for development and testing of reverse proxy functions
+// Package origin simulates origin content servers
+// for development and testing of networky things.
+// You instantiate the server "pool", you override
+// defaults as needed and then you launch them.
+// They run forever.
+//
+// In most use cases, you'll check for a dev
+// environment and if so launch these servers.
+// Then you test your networky thing and they
+// will serve up content to it until you ctrl-c
+// to end your testing and go back to coding.
 package badorigin
 
 import (
@@ -16,38 +25,54 @@ import (
 )
 
 type Servers struct {
-	Ports []string
-	Debug bool
+	Ports       []string
+	Debug       bool
+	ContentRoot string
 }
 
+// NewServers configures a new collection of origin
+// servers in order to prepare them for launch.
 func NewServers(ports ...string) *Servers {
 	fmt.Println("creating new servers")
-	return &Servers{Ports: ports, Debug: false}
+	return &Servers{
+		Ports:       ports,
+		Debug:       false,
+		ContentRoot: "../sample-data",
+	}
 }
 
+// SetDebug turns on logging for the origin servers.
+// By default they will operate silently so you can
+// focus on messages from your app.
 func (s *Servers) SetDebug() {
-	fmt.Println("setting debug")
 	s.Debug = true
 }
 
-//LaunchServers runs some downstream content servers for overdrive
-// go grab stuff from.
+func (s *Servers) SetContentRoot(p string) {
+	s.ContentRoot = p
+}
+
+// LaunchServers spins up the previously configured
+// servers and runs in an infinite loop.
 func (s *Servers) LaunchServers() {
 	fmt.Println("launching servers")
 
 	// new gorilla mux router
 	r := mux.NewRouter()
 
-	changeHeaderThenServe := func(h http.Handler) http.HandlerFunc {
-		return func(w http.ResponseWriter, r *http.Request) {
-			// Set some header.
-			w.Header().Add("Server", "Test Origin")
-			// Serve with the actual handler.
-			h.ServeHTTP(w, r)
-		}
-	}
-
-	fs := changeHeaderThenServe(http.StripPrefix("/sites/", http.FileServer(http.Dir("./testing/sites/"))))
+	//	changeHeaderThenServe := func(h http.Handler) http.HandlerFunc {
+	//		return func(w http.ResponseWriter, r *http.Request) {
+	//			// Set some header.
+	//			w.Header().Add("Server", "Test Origin")
+	//			// Serve with the actual handler.
+	//			h.ServeHTTP(w, r)
+	//		}
+	//	}
+	//
+	//	fs := changeHeaderThenServe(
+	//		http.FileServer(http.Dir(s.ContentRoot)),
+	//	)
+	fs := http.FileServer(http.Dir(s.ContentRoot))
 	r.PathPrefix("/sites/").Handler(fs)
 
 	// redirects
