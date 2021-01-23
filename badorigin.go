@@ -17,6 +17,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -34,10 +35,12 @@ type Servers struct {
 // servers in order to prepare them for launch.
 func NewServers(ports ...string) *Servers {
 	fmt.Println("creating new servers")
+	wd, _ := os.Getwd()
+	fmt.Printf("dir:%v", wd)
 	return &Servers{
 		Ports:       ports,
 		Debug:       false,
-		ContentRoot: "../sample-data",
+		ContentRoot: "./testing",
 	}
 }
 
@@ -60,21 +63,6 @@ func (s *Servers) LaunchServers() {
 	// new gorilla mux router
 	r := mux.NewRouter()
 
-	//	changeHeaderThenServe := func(h http.Handler) http.HandlerFunc {
-	//		return func(w http.ResponseWriter, r *http.Request) {
-	//			// Set some header.
-	//			w.Header().Add("Server", "Test Origin")
-	//			// Serve with the actual handler.
-	//			h.ServeHTTP(w, r)
-	//		}
-	//	}
-	//
-	//	fs := changeHeaderThenServe(
-	//		http.FileServer(http.Dir(s.ContentRoot)),
-	//	)
-	fs := http.FileServer(http.Dir(s.ContentRoot))
-	r.PathPrefix("/sites/").Handler(fs)
-
 	// redirects
 	r.PathPrefix("/redirect/{code}/{location}").HandlerFunc(redirectHandler)
 
@@ -83,6 +71,10 @@ func (s *Servers) LaunchServers() {
 
 	// Errors
 	r.PathPrefix("/error/{code}/{message}").HandlerFunc(errorHandler)
+
+	// Static File server
+	fs := http.FileServer(http.Dir(s.ContentRoot))
+	r.PathPrefix("/").Handler(fs)
 
 	// middleware
 	r.Use(logging)
