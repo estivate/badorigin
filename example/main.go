@@ -17,7 +17,6 @@ func main() {
 	// if testing, launch the servers
 	if testMode {
 		bo := badorigin.NewServers(":8000", ":8001", ":8002")
-		bo.SetDebug()
 		go bo.LaunchServers()
 	}
 
