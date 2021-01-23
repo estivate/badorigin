@@ -40,7 +40,7 @@ func NewServers(ports ...string) *Servers {
 	return &Servers{
 		Ports:       ports,
 		Debug:       false,
-		ContentRoot: "./testing",
+		ContentRoot: ".",
 	}
 }
 
