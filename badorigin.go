@@ -44,17 +44,6 @@ func NewServers(ports ...string) *Servers {
 	}
 }
 
-// SetDebug turns on logging for the origin servers.
-// By default they will operate silently so you can
-// focus on messages from your app.
-func (s *Servers) SetDebug() {
-	s.Debug = true
-}
-
-func (s *Servers) SetContentRoot(p string) {
-	s.ContentRoot = p
-}
-
 // LaunchServers spins up the previously configured
 // servers and runs in an infinite loop.
 func (s *Servers) LaunchServers() {

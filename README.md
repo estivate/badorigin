@@ -7,8 +7,7 @@ servers that perform in different ways for development and testing purposes.
 
 ## Status
 
-Spin up any number of servers on different ports, they'll all operate with
-a random delay.
+Still working out the kinks.
 
 ## Install
 
@@ -36,6 +35,7 @@ func main() {
 	// if testing, launch the servers
 	if testMode {
 		bo := badorigin.NewServers(":8000", ":8001", ":8002")
+        bo.ContentRoot = "./testing"
 		bo.LaunchServers()
 	}
 
