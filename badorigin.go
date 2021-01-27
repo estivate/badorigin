@@ -62,8 +62,9 @@ func (s *Servers) LaunchServers() {
 	r.PathPrefix("/error/{code}/{message}").HandlerFunc(errorHandler)
 
 	// Static File server
-	fs := http.FileServer(http.Dir(s.ContentRoot))
-	r.PathPrefix("/").Handler(fs)
+	//	fs := http.FileServer(NoDirectoryListingFS{http.Dir(s.ContentRoot)})
+	//	r.PathPrefix("/").Handler(fs)
+	r.PathPrefix("/").Handler(NoDirFS(s.ContentRoot, ""))
 
 	// middleware
 	r.Use(logging)
