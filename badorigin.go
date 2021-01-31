@@ -17,7 +17,6 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -34,9 +33,7 @@ type Servers struct {
 // NewServers configures a new collection of origin
 // servers in order to prepare them for launch.
 func NewServers(ports ...string) *Servers {
-	fmt.Println("creating new servers")
-	wd, _ := os.Getwd()
-	fmt.Printf("dir:%v", wd)
+	//wd, _ := os.Getwd()
 	return &Servers{
 		Ports:       ports,
 		Debug:       false,
@@ -47,7 +44,9 @@ func NewServers(ports ...string) *Servers {
 // LaunchServers spins up the previously configured
 // servers and runs in an infinite loop.
 func (s *Servers) LaunchServers() {
-	fmt.Println("launching servers")
+	if s.Debug {
+		fmt.Println("launching servers")
+	}
 
 	// new gorilla mux router
 	r := mux.NewRouter()
@@ -67,8 +66,11 @@ func (s *Servers) LaunchServers() {
 	r.PathPrefix("/").Handler(NoDirFS(s.ContentRoot, ""))
 
 	// middleware
-	r.Use(logging)
+	if s.Debug {
+		r.Use(logging)
+	}
 	r.Use(chaos)
+	r.Use(headers)
 	//r.Use(setCookies)
 
 	http.Handle("/", r)
@@ -94,6 +96,16 @@ func chaos(f http.Handler) http.Handler {
 		delay := rand.Intn(1000000)
 		time.Sleep(time.Duration(delay) * time.Microsecond)
 
+		f.ServeHTTP(w, r)
+
+	})
+}
+
+// headers sets custom headers
+func headers(f http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		w.Header().Set("Server", "BadOrigin")
 		f.ServeHTTP(w, r)
 
 	})

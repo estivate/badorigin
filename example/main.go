@@ -18,6 +18,7 @@ func main() {
 	if testMode {
 		bo := badorigin.NewServers(":8000", ":8001", ":8002")
 		bo.ContentRoot = "./testing"
+		//bo.Debug = true
 		go bo.LaunchServers()
 	}
 
